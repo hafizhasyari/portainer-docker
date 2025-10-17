@@ -1,0 +1,28 @@
+networks:
+  public_net:
+    external: true
+
+services:
+  portainer:
+    image: portainer/portainer-ce:2.33.2-alpine
+    restart: unless-stopped
+    container_name: portainer
+    hostname: portainer
+    networks:
+      - public_net
+#    ports:
+#      - 8000:8000 # Remove if you do not intend to use Edge Agents
+#      - 9443:9443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer_data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.voyager.qzz.io`)"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.tls.certresolver=le"
+      - "traefik.http.routers.portainer.tls.domains[0].main=voyager.qzz.io"
+      - "traefik.http.routers.portainer.tls.domains[0].sans=*.voyager.qzz.io"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9443"
+      - "traefik.http.services.portainer.loadbalancer.server.scheme=https"
